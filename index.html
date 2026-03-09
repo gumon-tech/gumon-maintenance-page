@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ปิดปรับปรุงเซิร์ฟเวอร์</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a;
+      font-family: 'Segoe UI', 'Noto Sans Thai', sans-serif;
+      color: #f1f5f9;
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+      max-width: 520px;
+      width: 100%;
+    }
+
+    .icon-wrapper {
+      margin-bottom: 2rem;
+    }
+
+    .gear-icon {
+      width: 100px;
+      height: 100px;
+      animation: spin 6s linear infinite;
+      color: #f59e0b;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fbbf24;
+      margin-bottom: 0.75rem;
+      line-height: 1.3;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #94a3b8;
+      line-height: 1.7;
+    }
+
+    .time-badge {
+      display: inline-block;
+      margin-top: 1.5rem;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      line-height: 1.8;
+    }
+
+    .time-badge span {
+      color: #fbbf24;
+      font-weight: 600;
+    }
+
+    /* Shown only when outside the maintenance window */
+    .done-msg {
+      display: none;
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.25rem;
+      background: #14532d;
+      border: 1px solid #16a34a;
+      border-radius: 0.75rem;
+      font-size: 0.9rem;
+      color: #86efac;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon-wrapper">
+      <!-- Gear SVG icon -->
+      <svg class="gear-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+        <path d="M19.622 10.395l-1.097-2.65L20 6l-2-2-1.735 1.483-2.707-1.113L12.935 2h-1.954l-.632 2.401-2.645 1.115L6 4 4 6l1.453 1.789-1.08 2.657L2 11v2l2.401.655L5.516 16.3 4 18l2 2 1.791-1.46 2.606 1.072L11 22h2l.604-2.387 2.651-1.098C16.697 18.831 18 20 18 20l2-2-1.484-1.75 1.098-2.652 2.386-.62V11l-2.378-.605Z"/>
+      </svg>
+    </div>
+
+    <h1>ปิดปรับปรุงเซิร์ฟเวอร์</h1>
+    <p class="subtitle">ขออภัยในความไม่สะดวก<br>ระบบอยู่ระหว่างการปรับปรุง กรุณากลับมาใหม่ภายหลัง</p>
+
+    <div class="time-badge">
+      🗓️ วันที่ <span>10 มีนาคม 2569</span> เวลา <span>20:30 น.</span><br>
+      ถึง <span>11 มีนาคม 2569</span> เวลา <span>09:30 น.</span><br>
+      (เวลาประเทศไทย, UTC+7)
+    </div>
+
+    <div class="done-msg" id="doneBanner">
+      ✅ การปรับปรุงเสร็จสิ้นแล้ว ระบบกลับมาให้บริการปกติ
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // Maintenance window in Thai time (UTC+7)
+      // Start: 10 March 2026 20:30 ICT  →  UTC: 10 March 2026 13:30
+      // End:   11 March 2026 09:30 ICT  →  UTC: 11 March 2026 02:30
+      var startUTC = Date.UTC(2026, 2, 10, 13, 30); // months are 0-indexed
+      var endUTC   = Date.UTC(2026, 2, 11,  2, 30);
+      var now = Date.now();
+
+      if (now > endUTC) {
+        document.getElementById('doneBanner').style.display = 'block';
+      }
+    })();
+  </script>
+</body>
+</html>
