@@ -6,5 +6,5 @@
     "th": "(เวลาประเทศไทย, UTC+7)",
     "en": "(Thailand Time, UTC+7)"
   },
-  "showTimezoneToggle": true
+  "showTimezoneToggle": false
 }
