@@ -67,6 +67,27 @@
         background: #e0f2fe;
       }
 
+      /* timezone toggle (small) */
+      .tz-btn {
+        padding: 0.2rem 0.6rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: #3b9fd8;
+        transition:
+          background 0.2s,
+          color 0.2s;
+        font-family: inherit;
+        border-left: 1px solid rgba(59, 159, 216, 0.08);
+      }
+
+      .tz-btn.active {
+        background: #3b9fd8;
+        color: #fff;
+      }
+
       /* ── Card ── */
       .container {
         text-align: center;
@@ -154,6 +175,15 @@
       >
         EN
       </button>
+      <button
+        type="button"
+        class="tz-btn"
+        id="btn-tz"
+        onclick="toggleTZ()"
+        title="Toggle timezone"
+      >
+        TZ
+      </button>
     </div>
 
     <div class="container">
@@ -195,7 +225,12 @@
 
       var currentLang = document.documentElement.lang || "th";
       // detect viewer timezone (IANA); if user is in UK (Europe/London) we'll prefer showing UK time
-      var viewerTZ = (typeof Intl !== 'undefined' && Intl.DateTimeFormat) ? Intl.DateTimeFormat().resolvedOptions().timeZone : null;
+      var viewerTZ =
+        typeof Intl !== "undefined" && Intl.DateTimeFormat
+          ? Intl.DateTimeFormat().resolvedOptions().timeZone
+          : null;
+      // tzMode: 'viewer' = show viewer's local zone, 'config' = show configured timezone
+      var tzMode = viewerTZ ? "viewer" : "config";
 
       function pad(n) {
         return n.toString().padStart(2, "0");
@@ -225,25 +260,35 @@
         return { dateStr: dateStr, timeStr: timeStr };
       }
 
-      function getTZDisplay(tz, lang){
-        if (!tz) return '';
+      function getTZDisplay(tz, lang) {
+        if (!tz) return "";
         // prefer configured friendly label when tz equals configured timezone
-        if (config.timezone && tz === config.timezone && config.timezoneLabel && config.timezoneLabel[lang]){
+        if (
+          config.timezone &&
+          tz === config.timezone &&
+          config.timezoneLabel &&
+          config.timezoneLabel[lang]
+        ) {
           return config.timezoneLabel[lang];
         }
         // try to obtain short offset like GMT+7 or GMT+07:00 via Intl
-        try{
-          var parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short' }).format(new Date()).split(' ');
-          var maybeOffset = parts[parts.length-1];
-          return '(' + tz + (maybeOffset ? ' ' + maybeOffset : '') + ')';
-        }catch(e){
-          return '(' + tz + ')';
+        try {
+          var parts = new Intl.DateTimeFormat("en-US", {
+            timeZone: tz,
+            timeZoneName: "short",
+          })
+            .format(new Date())
+            .split(" ");
+          var maybeOffset = parts[parts.length - 1];
+          return "(" + tz + (maybeOffset ? " " + maybeOffset : "") + ")";
+        } catch (e) {
+          return "(" + tz + ")";
         }
       }
 
       function buildTimeBadge(lang, startISO, endISO) {
-        // prefer showing viewer local timezone when available; fall back to configured timezone
-        var tz = viewerTZ || config.timezone;
+        // choose timezone according to tzMode; fall back to configured timezone
+        var tz = tzMode === "viewer" && viewerTZ ? viewerTZ : config.timezone;
         var s = new Date(startISO);
         var e = new Date(endISO);
         // effectiveLabel: show current timezone identifier and short offset when possible
@@ -399,6 +444,26 @@
         if (btnEn) btnEn.classList.remove("active");
         if (lang === "th" && btnTh) btnTh.classList.add("active");
         if (lang === "en" && btnEn) btnEn.classList.add("active");
+
+        // timezone toggle UI
+        var btnTz = document.getElementById("btn-tz");
+        if (btnTz) {
+          // show/hide based on config flag
+          if (config.showTimezoneToggle === false) {
+            btnTz.style.display = "none";
+          } else {
+            btnTz.style.display = "inline-block";
+            // label for current mode
+            btnTz.textContent = tzMode === "viewer" ? t.tzLocal : t.tzConfig;
+            if (tzMode === "viewer") btnTz.classList.add("active");
+            else btnTz.classList.remove("active");
+          }
+        }
+      }
+
+      function toggleTZ() {
+        tzMode = tzMode === "viewer" ? "config" : "viewer";
+        setLang(currentLang);
       }
 
       function isValidISO8601(s) {
@@ -463,11 +528,17 @@
                   en: data.timezoneLabel,
                 };
             }
+
+            if (typeof data.showTimezoneToggle !== "undefined") {
+              config.showTimezoneToggle = !!data.showTimezoneToggle;
+            }
           })
           .catch(function () {
             /* keep fallback */
           })
           .finally(function () {
+            // pick sensible initial tzMode: prefer viewerTZ if available
+            tzMode = viewerTZ ? "viewer" : "config";
             setLang(currentLang);
           });
       }

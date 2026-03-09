@@ -5,5 +5,7 @@
   "timezoneLabel": {
     "th": "(เวลาประเทศไทย, UTC+7)",
     "en": "(Thailand Time, UTC+7)"
-  }
+  },
+  // สำหรับ test timezone
+  "showTimezoneToggle": false
 }
