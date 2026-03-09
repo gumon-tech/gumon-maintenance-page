@@ -225,15 +225,29 @@
         return { dateStr: dateStr, timeStr: timeStr };
       }
 
+      function getTZDisplay(tz, lang){
+        if (!tz) return '';
+        // prefer configured friendly label when tz equals configured timezone
+        if (config.timezone && tz === config.timezone && config.timezoneLabel && config.timezoneLabel[lang]){
+          return config.timezoneLabel[lang];
+        }
+        // try to obtain short offset like GMT+7 or GMT+07:00 via Intl
+        try{
+          var parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short' }).format(new Date()).split(' ');
+          var maybeOffset = parts[parts.length-1];
+          return '(' + tz + (maybeOffset ? ' ' + maybeOffset : '') + ')';
+        }catch(e){
+          return '(' + tz + ')';
+        }
+      }
+
       function buildTimeBadge(lang, startISO, endISO) {
         // prefer showing viewer local timezone when available; fall back to configured timezone
         var tz = viewerTZ || config.timezone;
         var s = new Date(startISO);
         var e = new Date(endISO);
-        // effectiveLabel: use local label when showing viewer timezone, otherwise use configured label
-        var effectiveLabel = (tz === viewerTZ)
-          ? (lang === 'th' ? '(เวลาท้องถิ่น)' : '(Local time)')
-          : ((config.timezoneLabel && config.timezoneLabel[lang]) ? config.timezoneLabel[lang] : ('(' + (tz || '') + ')'));
+        // effectiveLabel: show current timezone identifier and short offset when possible
+        var effectiveLabel = getTZDisplay(tz, lang);
 
         // If timezone is a valid IANA zone, use Intl to format parts in that zone
         var useTimeZone = typeof tz === "string";
