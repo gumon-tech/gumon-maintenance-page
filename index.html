@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="page-title">ปิดปรับปรุงเซิร์ฟเวอร์</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(
+          160deg,
+          #dbeafe 0%,
+          #f0f9ff 50%,
+          #e0f2fe 100%
+        );
+        font-family: "Noto Sans Thai", "Segoe UI", "Kanit", sans-serif;
+        color: #1e3a5f;
+      }
+
+      /* ── Language toggle ── */
+      .lang-toggle {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        display: inline-flex;
+        align-items: center;
+        background: #fff;
+        border: 2px solid #3b9fd8;
+        border-radius: 2rem;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(59, 159, 216, 0.25);
+        z-index: 100;
+        height: 2.2rem;
+      }
+
+      .lang-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 1rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: #3b9fd8;
+        transition: background 0.2s, color 0.2s;
+        font-family: inherit;
+        height: 100%;
+        line-height: 1;
+        border-radius: 0;
+      }
+
+      .lang-btn.active {
+        background: #3b9fd8;
+        color: #fff;
+      }
+
+      .lang-btn:not(.active):hover {
+        background: #e0f2fe;
+      }
+
+      /* timezone toggle (small) */
+      .tz-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 0.8rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: #3b9fd8;
+        transition: background 0.2s, color 0.2s;
+        font-family: inherit;
+        border-left: 1px solid rgba(59, 159, 216, 0.08);
+        height: 100%;
+        border-radius: 0;
+      }
+
+      .tz-btn.active {
+        background: #3b9fd8;
+        color: #fff;
+      }
+
+      /* ── Card ── */
+      .container {
+        text-align: center;
+        padding: 2.5rem 2rem 2rem;
+        max-width: 500px;
+        width: calc(100% - 2rem);
+        background: #ffffff;
+        border-radius: 1.75rem;
+        box-shadow: 0 8px 40px rgba(59, 159, 216, 0.18);
+        border: 2px solid #bae0f7;
+      }
+
+      /* ── Mascot ── */
+      .mascot-wrapper {
+        margin-bottom: 1.25rem;
+      }
+
+      .mascot-wrapper svg {
+        width: 130px;
+        height: 130px;
+        filter: drop-shadow(0 6px 16px rgba(59, 159, 216, 0.35));
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      /* ── Typography ── */
+      h1 {
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: #1565c0;
+        margin-bottom: 0.6rem;
+        line-height: 1.3;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+        color: #4a7fa5;
+        line-height: 1.75;
+      }
+
+      /* ── Time badge ── */
+      .time-badge {
+        display: inline-block;
+        margin-top: 1.5rem;
+        background: #e0f2fe;
+        border: 1.5px solid #7ec8ee;
+        border-radius: 1rem;
+        padding: 0.8rem 1.4rem;
+        font-size: 0.9rem;
+        color: #1e4d78;
+        line-height: 2;
+      }
+
+      .time-badge strong {
+        color: #1565c0;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Language Toggle -->
+    <div class="lang-toggle">
+      <button
+        type="button"
+        class="lang-btn active"
+        id="btn-th"
+        onclick="setLang('th')"
+      >
+        ไทย
+      </button>
+      <button
+        type="button"
+        class="lang-btn"
+        id="btn-en"
+        onclick="setLang('en')"
+      >
+        EN
+      </button>
+    </div>
+
+    <div class="container">
+      <h1 id="main-title">ปิดปรับปรุงเซิร์ฟเวอร์</h1>
+      <p class="subtitle" id="main-subtitle">
+        ขออภัยในความไม่สะดวก<br />ระบบอยู่ระหว่างการปรับปรุง
+        กรุณากลับมาใหม่ภายหลัง
+      </p>
+
+      <div class="time-badge" id="time-badge">Loading maintenance time...</div>
+    </div>
+
+    <script>
+      var i18n = {
+        th: {
+          pageTitle: "ปิดปรับปรุงเซิร์ฟเวอร์",
+          mainTitle: "ปิดปรับปรุงเซิร์ฟเวอร์",
+          mainSub:
+            "ขออภัยในความไม่สะดวก<br>ระบบอยู่ระหว่างการปรับปรุง<br>กรุณากลับมาใหม่ภายหลัง",
+        },
+        en: {
+          pageTitle: "Server Maintenance",
+          mainTitle: "Server Maintenance",
+          mainSub:
+            "We apologize for the inconvenience.<br>The system is under maintenance.<br>Please check back later.",
+        },
+      };
+
+      // fallback config (ISO strings include timezone +07:00)
+      var config = {
+        startTime: "2026-03-10T20:30:00+07:00",
+        endTime: "2026-03-11T09:30:00+07:00",
+        timezone: "Asia/Bangkok",
+        timezoneLabel: {
+          th: "(เวลาประเทศไทย, UTC+7)",
+          en: "(Thailand Time, UTC+7)",
+        },
+      };
+
+      var currentLang = document.documentElement.lang || "th";
+      // detect viewer timezone (IANA); if user is in UK (Europe/London) we'll prefer showing UK time
+      var viewerTZ =
+        typeof Intl !== "undefined" && Intl.DateTimeFormat
+          ? Intl.DateTimeFormat().resolvedOptions().timeZone
+          : null;
+      // tzMode: 'viewer' = show viewer's local zone, 'config' = show configured timezone
+      var tzMode = viewerTZ ? "viewer" : "config";
+
+      function pad(n) {
+        return n.toString().padStart(2, "0");
+      }
+
+      function formatThaiParts(dt) {
+        var datePart = new Intl.DateTimeFormat("th-TH", {
+          day: "numeric",
+          month: "long",
+        }).format(dt);
+        var year = dt.getFullYear() + 543;
+        var timePart = pad(dt.getHours()) + ":" + pad(dt.getMinutes()) + " น.";
+        return { datePart: datePart, year: year, timePart: timePart };
+      }
+
+      function formatEnParts(dt) {
+        var dateStr = new Intl.DateTimeFormat("en-US", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        }).format(dt);
+        var timeStr = new Intl.DateTimeFormat("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        }).format(dt);
+        return { dateStr: dateStr, timeStr: timeStr };
+      }
+
+      function getTZDisplay(tz, lang) {
+        if (!tz) return "";
+        // prefer configured friendly label when tz equals configured timezone
+        if (
+          config.timezone &&
+          tz === config.timezone &&
+          config.timezoneLabel &&
+          config.timezoneLabel[lang]
+        ) {
+          return config.timezoneLabel[lang];
+        }
+        // try to obtain short offset like GMT+7 or GMT+07:00 via Intl
+        try {
+          var parts = new Intl.DateTimeFormat("en-US", {
+            timeZone: tz,
+            timeZoneName: "short",
+          })
+            .format(new Date())
+            .split(" ");
+          var maybeOffset = parts[parts.length - 1];
+          return "(" + tz + (maybeOffset ? " " + maybeOffset : "") + ")";
+        } catch (e) {
+          return "(" + tz + ")";
+        }
+      }
+
+      function buildTimeBadge(lang, startISO, endISO) {
+        // choose timezone according to tzMode; fall back to configured timezone
+        var tz = tzMode === "viewer" && viewerTZ ? viewerTZ : config.timezone;
+        var s = new Date(startISO);
+        var e = new Date(endISO);
+        // effectiveLabel: show current timezone identifier and short offset when possible
+        var effectiveLabel = getTZDisplay(tz, lang);
+
+        // If timezone is a valid IANA zone, use Intl to format parts in that zone
+        var useTimeZone = typeof tz === "string";
+        if (useTimeZone) {
+          try {
+            // test timezone validity
+            new Intl.DateTimeFormat("en-US", { timeZone: tz });
+          } catch (err) {
+            useTimeZone = false;
+          }
+        }
+
+        if (lang === "th") {
+          if (useTimeZone) {
+            var dfDate = new Intl.DateTimeFormat("th-TH", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+              timeZone: tz,
+            });
+            var partsS = dfDate.formatToParts(s);
+            var partsE = dfDate.formatToParts(e);
+            var dayMonthS = partsS
+              .filter((p) => p.type === "day" || p.type === "month")
+              .map((p) => p.value)
+              .join(" ");
+            var yearS = partsS
+              .filter((p) => p.type === "year")
+              .map((p) => p.value)[0];
+            var dayMonthE = partsE
+              .filter((p) => p.type === "day" || p.type === "month")
+              .map((p) => p.value)
+              .join(" ");
+            var yearE = partsE
+              .filter((p) => p.type === "year")
+              .map((p) => p.value)[0];
+            var tf = new Intl.DateTimeFormat("th-TH", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+              timeZone: tz,
+            });
+            var timeS = tf.format(s).replace(".", ":");
+            var timeE = tf.format(e).replace(".", ":");
+            // convert gregorian year to BE
+            var beYearS = parseInt(yearS, 10) + 543;
+            var beYearE = parseInt(yearE, 10) + 543;
+            return (
+              "🗓️ วันที่ <strong>" +
+              dayMonthS +
+              " " +
+              beYearS +
+              "</strong> เวลา <strong>" +
+              timeS +
+              " น.</strong><br>ถึง <strong>" +
+              dayMonthE +
+              " " +
+              beYearE +
+              "</strong> เวลา <strong>" +
+              timeE +
+              " น.</strong><br>" +
+              effectiveLabel
+            );
+          } else {
+            var fs = formatThaiParts(s);
+            var fe = formatThaiParts(e);
+            return (
+              "🗓️ วันที่ <strong>" +
+              fs.datePart +
+              " " +
+              fs.year +
+              "</strong> เวลา <strong>" +
+              fs.timePart +
+              "</strong><br>ถึง <strong>" +
+              fe.datePart +
+              " " +
+              fe.year +
+              "</strong> เวลา <strong>" +
+              fe.timePart +
+              "</strong><br>" +
+              effectiveLabel
+            );
+          }
+        } else {
+          if (useTimeZone) {
+            var dfDateEn = new Intl.DateTimeFormat("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+              timeZone: tz,
+            });
+            var partsS = dfDateEn.formatToParts(s);
+            var partsE = dfDateEn.formatToParts(e);
+            var dateStrS = partsS.map((p) => p.value).join("");
+            var dateStrE = partsE.map((p) => p.value).join("");
+            var tfEn = new Intl.DateTimeFormat("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+              timeZone: tz,
+            });
+            var timeS = tfEn.format(s);
+            var timeE = tfEn.format(e);
+            return (
+              "🗓️ From <strong>" +
+              dateStrS +
+              "</strong> at <strong>" +
+              timeS +
+              "</strong><br>to <strong>" +
+              dateStrE +
+              "</strong> at <strong>" +
+              timeE +
+              "</strong><br>" +
+              effectiveLabel
+            );
+          } else {
+            var fs = formatEnParts(s);
+            var fe = formatEnParts(e);
+            return (
+              "🗓️ From <strong>" +
+              fs.dateStr +
+              "</strong> at <strong>" +
+              fs.timeStr +
+              "</strong><br>to <strong>" +
+              fe.dateStr +
+              "</strong> at <strong>" +
+              fe.timeStr +
+              "</strong><br>" +
+              effectiveLabel
+            );
+          }
+        }
+      }
+
+      function setLang(lang) {
+        currentLang = lang;
+        var t = i18n[lang];
+        document.documentElement.lang = lang;
+        document.getElementById("page-title").textContent = t.pageTitle;
+        document.getElementById("main-title").textContent = t.mainTitle;
+        document.getElementById("main-subtitle").innerHTML = t.mainSub;
+        var tb = document.getElementById("time-badge");
+        if (tb)
+          tb.innerHTML = buildTimeBadge(lang, config.startTime, config.endTime);
+
+        var btnTh = document.getElementById("btn-th");
+        var btnEn = document.getElementById("btn-en");
+        if (btnTh) btnTh.classList.remove("active");
+        if (btnEn) btnEn.classList.remove("active");
+        if (lang === "th" && btnTh) btnTh.classList.add("active");
+        if (lang === "en" && btnEn) btnEn.classList.add("active");
+
+        // timezone toggle UI
+        var btnTz = document.getElementById("btn-tz");
+        if (btnTz) {
+          // show/hide based on config flag
+          if (config.showTimezoneToggle === false) {
+            btnTz.style.display = "none";
+          } else {
+            btnTz.style.display = "inline-flex";
+            // label for current mode
+            btnTz.textContent = tzMode === "viewer" ? t.tzLocal : t.tzConfig;
+            if (tzMode === "viewer") btnTz.classList.add("active");
+            else btnTz.classList.remove("active");
+          }
+        }
+      }
+
+      function toggleTZ() {
+        tzMode = tzMode === "viewer" ? "config" : "viewer";
+        setLang(currentLang);
+      }
+
+      function isValidISO8601(s) {
+        try {
+          if (typeof s !== "string") return false;
+          var t = new Date(s);
+          return !isNaN(t.getTime());
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function isValidTimeZone(tz) {
+        try {
+          if (typeof tz !== "string") return false;
+          Intl.DateTimeFormat("en-US", { timeZone: tz }).format();
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function loadConfig() {
+        fetch("config.json")
+          .then(function (resp) {
+            if (!resp.ok) throw new Error("no config");
+            return resp.json();
+          })
+          .then(function (data) {
+            if (data.startTime && isValidISO8601(data.startTime))
+              config.startTime = data.startTime;
+            else if (data.startTime)
+              console.warn(
+                "config.startTime is not valid ISO8601:",
+                data.startTime,
+              );
+            if (data.endTime && isValidISO8601(data.endTime))
+              config.endTime = data.endTime;
+            else if (data.endTime)
+              console.warn(
+                "config.endTime is not valid ISO8601:",
+                data.endTime,
+              );
+
+            if (data.timezone) {
+              if (isValidTimeZone(data.timezone))
+                config.timezone = data.timezone;
+              else
+                console.warn(
+                  "config.timezone is not a valid IANA timezone:",
+                  data.timezone,
+                );
+            }
+
+            if (data.timezoneLabel) {
+              // accept object with th/en labels or a single string
+              if (typeof data.timezoneLabel === "object")
+                config.timezoneLabel = data.timezoneLabel;
+              else if (typeof data.timezoneLabel === "string")
+                config.timezoneLabel = {
+                  th: data.timezoneLabel,
+                  en: data.timezoneLabel,
+                };
+            }
+
+            if (typeof data.showTimezoneToggle !== "undefined") {
+              config.showTimezoneToggle = !!data.showTimezoneToggle;
+            }
+          })
+          .catch(function () {
+            /* keep fallback */
+          })
+          .finally(function () {
+            // pick sensible initial tzMode: prefer viewerTZ if available
+            tzMode = viewerTZ ? "viewer" : "config";
+            setLang(currentLang);
+          });
+      }
+
+      loadConfig();
+    </script>
+  </body>
+</html>
